@@ -1,13 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
+import Signup from './components/Signup';
 import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import {Routes,Route } from "react-router-dom";
 
 function App() {
   return (
     <>
-    <div className='flex justify-center items-center h-screen'>
-    <Login/>
-    </div>
+    <Routes>
+    <Route path='/' element={<Signup/>}/>
+    <Route path='/login' element={<Login/>}/>
+    <Route path='/dashboard' element={<Dashboard/>}/>
+   </Routes>
     </>
   );
 }
