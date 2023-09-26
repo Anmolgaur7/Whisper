@@ -2,7 +2,11 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'chatbg': "url('../src/images/peakpx.jpg')",
+      }
+    },
   },
   plugins: [],
 }
