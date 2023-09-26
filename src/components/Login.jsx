@@ -16,7 +16,7 @@ function Login() {
                     <label className='text-lg font-mono font-normal'>Password</label>
                     <input type="password" name='password' placeholder='Enter you password' onChange={(e) => setpassword(e.target.value)} className=' p-2 m-2 border bg-slate-100 border-black'/>
                     <button className='bg-blue-500 text-lg w-[6rem]  h-[3rem] p-1 font-bold text-white rounded-2xl mt-8 hover:bg-blue-400' type='submit'>Sign In</button>
-                <div className='mt-4 font-medium font-mono'>Did'nt have an account? <span className='text-blue-400'><a href="/">Sign Up</a></span></div>
+                <div className='mt-4 font-medium font-mono'>Did'nt have an account? <span className='text-blue-400'><a href="/users/signup">Sign Up</a></span></div>
                 </form>
                 </Fade>
             </div>

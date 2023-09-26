@@ -19,7 +19,7 @@ function Signup() {
           <label className='text-lg font-mono font-normal'>Password</label>
           <input type="password" name='password' placeholder='Enter you password' onChange={(e) => setpassword(e.target.value)} className=' p-2 m-2 bg-slate-100 border border-black ' />
           <button className='bg-blue-500 text-lg w-[6rem]  h-[3rem] p-1 font-bold text-white rounded-2xl mt-10 hover:bg-blue-400' type='submit'>Sign Up</button>
-          <div className='mt-8 font-medium font-mono'>Already have an account? <span className='text-blue-400'><a href="/login">Sign In</a></span></div>
+          <div className='mt-8 font-medium font-mono'>Already have an account? <span className='text-blue-400'><a href="/users /login">Sign In</a></span></div>
         </form>
       </Fade>
     </div>
