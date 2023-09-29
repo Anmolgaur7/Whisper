@@ -13,7 +13,7 @@ function Signup() {
           <h1 className='text-4xl font-mono font-bold'>Welcome</h1>
           <h1 className='text-lg font-mono font-normal mb-16'>Sign up to get Started</h1>
           <label className='text-lg font-mono font-normal'>First Name</label>
-          <input type="text" name='Fullname' placeholder='Enter your  Name' onChange={(e) => setname(e.target.value)} className=' p-2 m-2 border bg-slate-100 border-black ' />
+          <input type="text" name='fullname' placeholder='Enter your  Name' onChange={(e) => setname(e.target.value)} className=' p-2 m-2 border bg-slate-100 border-black ' />
           <label className='text-lg font-mono font-normal' onChange={(e) => setemail(e.target.value)}>Email</label>
           <input type="email" name='email' placeholder='Enter your email' className=' p-2 m-2 border bg-slate-100 border-black ' />
           <label className='text-lg font-mono font-normal'>Password</label>

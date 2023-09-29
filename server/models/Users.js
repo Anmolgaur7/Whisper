@@ -20,6 +20,6 @@ const UserSchema = moongoose.Schema(
         }
     }
 )
-const Users = moongoose.model("user", UserSchema)
+const Users = moongoose.model("User", UserSchema)
 
 module.exports=Users

@@ -1,6 +1,6 @@
 const moongoose = require('mongoose')
 
-const url = `mongodb+srv://anmolgaur87:@cristiano7cluster0.7xhmzm9.mongodb.net/?retryWrites=true&w=majority`
+const url = `mongodb+srv://anmolgaur26:Cristiano7@cluster0.hlpolen.mongodb.net/?retryWrites=true&w=majority`
 
 
 moongoose.connect(url, {
