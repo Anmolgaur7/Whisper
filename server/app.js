@@ -1,6 +1,8 @@
 const express = require('express');
 const bycrypt = require('bcryptjs');
 const Users = require('./models/Users');
+const Conversations = require('./models/Conversation');
+const Messages = require('./models/Messages');
 const jwt = require('jsonwebtoken')
 
 require('./db/connection')
@@ -61,7 +63,7 @@ app.post('/api/login', async (req, res, next) => {
                     const jwtkey = 'this_is_a_secret_key_which_doesnt_need_to_be_exposed'
                     jwt.sign(payload, jwtkey, {
                         expiresIn: 84600
-                    }, async (err,token) => {
+                    }, async (err, token) => {
                         await Users.updateOne({ _id: user.id, }, {
                             $set: { token }
                         })
@@ -69,7 +71,7 @@ app.post('/api/login', async (req, res, next) => {
                         next()
                     })
                 }
-                res.status(200).json({ user:{fullname:user.fullname,email:user.email},token:user.token})
+                res.status(200).json({ user: { fullname: user.fullname, email: user.email }, token: user.token })
             }
         }
 
@@ -77,6 +79,52 @@ app.post('/api/login', async (req, res, next) => {
         console.error(error)
     }
 })
+app.post('/api/conversation', async (req, res) => {
+    try {
+        const { senderid, recieverid } = req.body
+        const newconversation = new Conversations({ members: [senderid, recieverid] })
+        await newconversation.save()
+        res.status(200).send("conversation created successfully")
+    } catch (error) {
+        console.error(error)
+    }
+})
+app.get('/api/conversation/:userid', async (req, res) => {
+    try {
+        const id = req.params.userid
+        const conversations = await Conversations.find({ members: { $in: [id] } })
+        const conversationUserData = Promise.all(conversations.map(async (conversation) => {
+            const recieverId = conversation.members.find((member) => member !== id)
+            const user = await Users.findById(recieverId)
+
+            return { user: { fullname: user.fullname, email: user.email }, conversationid: conversation._id }
+        }))
+        res.status(200).json(await conversationUserData)
+    } catch (error) {
+        console.error(error)
+    }
+})
+app.post('/api/message', async (req, res) => {
+    try {
+        const { conversationId, senderId, message } = req.body
+        const newmessage = new Messages({conversationId, senderId, message})
+        await newmessage.save()
+        res.status(200).send("message sent succesfully")
+    } catch (error) {
+        console.error(error);
+    }
+})
+ app.get('/api/message/:coversationid',async(req,res)=>{
+   try {
+    const id=req.params.coversationid
+    const messages=await Messages.find({id})
+    res.status(200).json(messages);
+    
+   } catch (error) {
+    console.error(error)
+   }
+
+ })
 app.listen(8000, () => {
     console.log('Listining');
 })
