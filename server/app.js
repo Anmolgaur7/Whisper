@@ -119,12 +119,24 @@ app.get('/api/message/:conversationId', async ( req, res ) => {
     try {
         const conversationId = req.params.conversationId
         const messages = await Messages.find({ conversationId })
-        const messageUserData=Promise.all(messages.map((message1)=>{
-            const User=Users.find(message1.senderId);
-            return {user:{email:User.email,fullName:User.fullName},message:message1.message}
-
+        const messageUserData=Promise.all(messages.map( async(message1)=>{
+            const User=await Users.findById(message1.senderId);
+            return {user:{email:User.email,fullName:User.fullname},message:message1.message}
         }))
             res.status(200).json( await messageUserData); 
+    } catch (error) {
+        console.error(error)
+    }
+
+})
+app.get('/api/users',async (req,res)=>{
+    try {
+        
+        const users=await Users.find()
+        const userdata= Promise.all(users.map((user)=>{
+            return {user:{email:user.email,fullName:user.fullname},userID:user._id}
+        }))
+        res.status(200).json(await userdata)
     } catch (error) {
         console.error(error)
     }
