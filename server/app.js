@@ -107,24 +107,29 @@ app.get('/api/conversation/:userid', async (req, res) => {
 app.post('/api/message', async (req, res) => {
     try {
         const { conversationId, senderId, message } = req.body
-        const newmessage = new Messages({conversationId, senderId, message})
+        const newmessage = new Messages({ conversationId, senderId, message })
         await newmessage.save()
         res.status(200).send("message sent succesfully")
     } catch (error) {
         console.error(error);
     }
 })
- app.get('/api/message/:coversationid',async(req,res)=>{
-   try {
-    const id=req.params.coversationid
-    const messages=await Messages.find({id})
-    res.status(200).json(messages);
-    
-   } catch (error) {
-    console.error(error)
-   }
 
- })
+app.get('/api/message/:conversationId', async ( req, res ) => {
+    try {
+        const conversationId = req.params.conversationId
+        const messages = await Messages.find({ conversationId })
+        const messageUserData=Promise.all(messages.map((message1)=>{
+            const User=Users.find(message1.senderId);
+            return {user:{email:User.email,fullName:User.fullName},message:message1.message}
+
+        }))
+            res.status(200).json( await messageUserData); 
+    } catch (error) {
+        console.error(error)
+    }
+
+})
 app.listen(8000, () => {
     console.log('Listining');
 })
