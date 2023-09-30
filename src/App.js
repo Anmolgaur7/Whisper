@@ -4,12 +4,12 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
-const Protectedroute = ({ children }) => {
+const Protectedroute = ({ children,auth=false }) => {
 
-  const isloggedin = localStorage.getItem('user:token') !== null || true;
+  const isloggedin = localStorage.getItem('user:token') !== null || false;
 
   console.log("login=>", isloggedin)
-  if (!isloggedin) {
+  if (!isloggedin && auth) {
     return <Navigate to={'/users/login'} />
   }
   else if (isloggedin && ['/users/login', '/users/signup'].includes(window.location.pathname)) {
@@ -23,7 +23,7 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={
-          <Protectedroute>
+          <Protectedroute auth={true}>
             <Dashboard />
           </Protectedroute>
         } />

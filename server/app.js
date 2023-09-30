@@ -4,11 +4,15 @@ const Users = require('./models/Users');
 const Conversations = require('./models/Conversation');
 const Messages = require('./models/Messages');
 const jwt = require('jsonwebtoken')
+const cors=require('cors')
 
 require('./db/connection')
 const app = express()
 app.use(express.json())
+app.use(cors())
 app.use(express.urlencoded({ extended: false }));
+
+const PORT=process.env.PORT||8000
 
 app.get('/', (req, res) => {
     res.send("welcome")
@@ -106,7 +110,20 @@ app.get('/api/conversation/:userid', async (req, res) => {
 })
 app.post('/api/message', async (req, res) => {
     try {
-        const { conversationId, senderId, message } = req.body
+        const { conversationId, senderId, message, recieverId = '' } = req.body
+        if (!senderId || !message) {
+          return  res.status(400).send("Please fill required feilds")
+        }
+        if (!conversationId && recieverId) {
+            const newconversation = new Conversations({ members: [senderId, recieverId] })
+            await newconversation.save()
+            const newmessage = new Messages({ conversationId:newconversation._id, senderId, message })
+            await newmessage.save()
+           return res.status(200).send("message sent succesfully")
+        }
+        else if (!conversationId && !recieverId){
+           return res.status(400).send("Please fill all field")
+        }
         const newmessage = new Messages({ conversationId, senderId, message })
         await newmessage.save()
         res.status(200).send("message sent succesfully")
@@ -115,26 +132,27 @@ app.post('/api/message', async (req, res) => {
     }
 })
 
-app.get('/api/message/:conversationId', async ( req, res ) => {
+app.get('/api/message/:conversationId', async (req, res) => {
     try {
         const conversationId = req.params.conversationId
+        if (conversationId==='new') return res.status(200).json([])
         const messages = await Messages.find({ conversationId })
-        const messageUserData=Promise.all(messages.map( async(message1)=>{
-            const User=await Users.findById(message1.senderId);
-            return {user:{email:User.email,fullName:User.fullname},message:message1.message}
+        const messageUserData = Promise.all(messages.map(async (message1) => {
+            const User = await Users.findById(message1.senderId);
+            return { user: { email: User.email, fullName: User.fullname }, message: message1.message }
         }))
-            res.status(200).json( await messageUserData); 
+        res.status(200).json(await messageUserData);
     } catch (error) {
         console.error(error)
     }
 
 })
-app.get('/api/users',async (req,res)=>{
+app.get('/api/users', async (req, res) => {
     try {
-        
-        const users=await Users.find()
-        const userdata= Promise.all(users.map((user)=>{
-            return {user:{email:user.email,fullName:user.fullname},userID:user._id}
+
+        const users = await Users.find()
+        const userdata = Promise.all(users.map((user) => {
+            return { user: { email: user.email, fullName: user.fullname }, userID: user._id }
         }))
         res.status(200).json(await userdata)
     } catch (error) {
@@ -142,6 +160,6 @@ app.get('/api/users',async (req,res)=>{
     }
 
 })
-app.listen(8000, () => {
+app.listen(PORT, () => {
     console.log('Listining');
 })

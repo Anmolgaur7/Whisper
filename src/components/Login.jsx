@@ -4,6 +4,7 @@ import { Fade } from "react-awesome-reveal";
 function Login() {
     const [email, setemail] = useState("");
     const [password, setpassword] = useState("");
+ 
     return (
        
             <div className='w-screen h-screen flex justify-center items-center'>
