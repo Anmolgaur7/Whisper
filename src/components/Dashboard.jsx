@@ -21,8 +21,9 @@ function Dashboard() {
             setconversations(resdata)
         }
         fetchconversations()
+        console.log(messages.reciever);
     }, [])
-    const fetchmessages = async (conversationid) => {
+    const fetchmessages = async (conversationid,user) => {
         const res = await fetch(`http://localhost:8000/api/message/${conversationid}`,{
             method: 'GET',
             headers: {
@@ -30,7 +31,7 @@ function Dashboard() {
             },
         })
         const resdata = await res.json()
-        setmessages(resdata)
+        setmessages({messages:resdata, reciever:user})
     }
     return (
         <div className='flex w-screen '>
@@ -52,7 +53,7 @@ function Dashboard() {
                                 conversations.map(({ conversationid,user }) => {
                                     return (
                                         <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
-                                            fetchmessages(conversationid)
+                                            fetchmessages( conversationid,user)
                                         }}>
                                             <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
                                             <div className='ml-3'>
@@ -68,7 +69,8 @@ function Dashboard() {
                 </div>
             </div>
             <div className='w-[50%]  bg-chatbg bg-contain  h-screen flex flex-col justify-center items-center'>
-                <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly px-14 p-2'>
+                   {
+                    <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly px-14 p-2'>
                     <div className='flex justify-center items-center'>
                         <img src={User} alt="img" className='w-[2.5rem] h-[2.5rem] border border-black border-1 rounded-full' />
                         <div className='flex justify-center items-center flex-col ml-6'>
@@ -77,25 +79,18 @@ function Dashboard() {
                         </div>
                     </div>
                     <img src={phone} className='w-[1.5rem] h-1.5rem ml-72 cursor-pointer' />
-                </div>
+                   </div>
+                   }
+                
                 <div className='h-[75%]  w-full mt-4 '>
                     <div className='h-[85%] p-4 overflow-y-scroll '>
                         {
-                            messages.length > 0 ? messages.map((message) => {
-                                if (message.user.id === loggedinuser.id) {
+                            messages?.messages?.length > 0 ? messages.messages.map(({message,user:{id}={}}) => {
                                     return (
-                                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                                            {message.message}
+                                        <div className={` max-w-[40%] rounded-b-2xl h-[2rem] shadow-lg  pl-2 p-1 mb-2 ${id===loggedinuser.id?'bg-green-200 rounded-tl-2xl  ml-auto':' bg-slate-100   rounded-tr-2xl'} `}>
+                                            {message}
                                         </div>
                                     )
-                                }
-                                else {
-                                    return (
-                                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                                           {message.message}
-                                        </div>
-                                    )
-                                }
                             }) : <div className=' flex justify-center items-center'>
                                 <div className='text-center text-xl m-3 font-semibold p-3 rounded-2xl bg-slate-100 w-fit'> No conversations</div>
                             </div>
