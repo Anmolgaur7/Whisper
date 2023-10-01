@@ -1,61 +1,46 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import User from "../images/usericon.png";
 import phone from "../images/phone.svg";
+import { ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 function Dashboard() {
-    const contacts = [
-        {
-            name: "Prince",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Aditi",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Pranay",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Aditi",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Pranay",
-            status: "Available",
-            img: User
+
+    const [messages,setmessages]=useState([])
+    const [user,setuser]=useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [conversations,setconversations]=useState([])
+    useEffect(()=>{
+        const loggedinuser=JSON.parse(localStorage.getItem('user:detail'))
+        const fetchconversations=async()=>{
+            const res=await fetch(`http://localhost:8000/api/conversation/${loggedinuser.id}`,{
+                method:'GET',
+                headers:{
+                'Content-Type':'application/json'
+                },
+            })
+            const resdata= await res.json()
+            setconversations(resdata)
         }
-        , {
-            name: "Aditi",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Pranay",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Maa",
-            status: "Available",
-            img: User
-        },
-        {
-            name: "Papa",
-            status: "Available",
-            img: User
-        }
-    ]
+        fetchconversations()
+    },[])
+    const fetchmessages=async(conversationId)=>{
+        const res=await fetch(`http://localhost:8000/api/message/${conversationId}`,{
+            method:'GET',
+            headers:{
+            'Content-Type':'application/json'
+            },
+        })
+        const resdata=await res.json()
+        setmessages(resdata)
+        console.log(resdata);
+    }
     return (
         <div className='flex w-screen '>
+            <ToastContainer/>
             <div className='w-[25%] border bg-white border-black h-screen'>
                 <div className='flex justify-center border items-center  p-4 shadow-lg'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
                     <div className='ml-8'>
-                        <h1 className='text-lg font-semibold'>Anmol</h1>
+                        <h1 className='text-lg font-semibold'>{user.fullname}</h1>
                         <p>My Account</p>
                     </div>
                 </div>
@@ -64,18 +49,22 @@ function Dashboard() {
                 <div className=' h-[75%] overflow-y-scroll'>
                     <div>
                         {
-                            contacts.map(({ name, status, img }) => {
+                        conversations.length>0?
+                            conversations.map(({ conversationid,user }) => {
                                 return (
-                                    <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg '>
-                                        <img src={img} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
+                                    <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={()=>{
+                                        fetchmessages(conversationid)
+                                    }}>
+                                        <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
                                         <div className='ml-3'>
-                                            <h1 className='text-lg font-medium' >{name}</h1>
-                                            <p>{status}</p>
+                                            <h1 className='text-lg font-medium' >{user.fullname}</h1>
+                                            <p>{user.email}</p>
                                         </div>
                                     </div>
                                 )
 
                             })
+                            : <div className='text-center text-xl m-3 font-semibold'> No conversations</div>
                         }
                     </div>
                 </div>
@@ -121,12 +110,12 @@ function Dashboard() {
                 </div>
                 <div className=' w-full flex  items-center'>
                     <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message' />
-                    <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-send bg-white rounded-full p-1 cursor-pointer " width="30" height="30" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-send bg-white rounded-full p-1 cursor-pointer " width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M10 14l11 -11" />
                         <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-circle-plus bg-white rounded-full p-1 cursor-pointer ml-1" width="30" height="30" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-circle-plus bg-white rounded-full p-1 cursor-pointer ml-1" width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
                         <path d="M9 12h6" />

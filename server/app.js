@@ -4,7 +4,7 @@ const Users = require('./models/Users');
 const Conversations = require('./models/Conversation');
 const Messages = require('./models/Messages');
 const jwt = require('jsonwebtoken')
-const cors=require('cors')
+const cors = require('cors')
 
 require('./db/connection')
 const app = express()
@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 
-const PORT=process.env.PORT||8000
+const PORT = process.env.PORT || 8000
 
 app.get('/', (req, res) => {
     res.send("welcome")
@@ -72,10 +72,9 @@ app.post('/api/login', async (req, res, next) => {
                             $set: { token }
                         })
                         user.save()
-                        next()
+                        return res.status(200).json({ user: { fullname: user.fullname, email: user.email,id:user._id }, token:token })
                     })
                 }
-                res.status(200).json({ user: { fullname: user.fullname, email: user.email }, token: user.token })
             }
         }
 
@@ -112,17 +111,17 @@ app.post('/api/message', async (req, res) => {
     try {
         const { conversationId, senderId, message, recieverId = '' } = req.body
         if (!senderId || !message) {
-          return  res.status(400).send("Please fill required feilds")
+            return res.status(400).send("Please fill required feilds")
         }
         if (!conversationId && recieverId) {
             const newconversation = new Conversations({ members: [senderId, recieverId] })
             await newconversation.save()
-            const newmessage = new Messages({ conversationId:newconversation._id, senderId, message })
+            const newmessage = new Messages({ conversationId: newconversation._id, senderId, message })
             await newmessage.save()
-           return res.status(200).send("message sent succesfully")
+            return res.status(200).send("message sent succesfully")
         }
-        else if (!conversationId && !recieverId){
-           return res.status(400).send("Please fill all field")
+        else if (!conversationId && !recieverId) {
+            return res.status(400).send("Please fill all field")
         }
         const newmessage = new Messages({ conversationId, senderId, message })
         await newmessage.save()
@@ -135,7 +134,7 @@ app.post('/api/message', async (req, res) => {
 app.get('/api/message/:conversationId', async (req, res) => {
     try {
         const conversationId = req.params.conversationId
-        if (conversationId==='new') return res.status(200).json([])
+        if (conversationId === 'new') return res.status(200).json([])
         const messages = await Messages.find({ conversationId })
         const messageUserData = Promise.all(messages.map(async (message1) => {
             const User = await Users.findById(message1.senderId);

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Fade } from "react-awesome-reveal";
 function Signup() {
   const [data,setdata]=useState({
-    fullName:'',
+    fullname:'',
     email:'',
     password:''
   })
@@ -13,7 +13,7 @@ function Signup() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ data })
+      body: JSON.stringify(data)
     })
     const resdata = res.json()
     console.log(resdata);
@@ -31,7 +31,7 @@ function Signup() {
           <label className='text-lg font-mono font-normal'>Password</label>
           <input type="password" name='password' placeholder='Enter you password' onChange={(e)=>{setdata({...data,password:e.target.value})}} className=' p-2 m-2 bg-slate-100 border border-black ' />
           <button type='submit' className='bg-blue-500 text-lg w-[6rem]  h-[3rem] p-1 font-bold text-white rounded-2xl mt-10 hover:bg-blue-400'   >Sign Up</button>
-          <div className='mt-8 font-medium font-mono'>Already have an account? <span className='text-blue-400'><a href="/users /login">Sign In</a></span></div>
+          <div className='mt-8 font-medium font-mono'>Already have an account? <span className='text-blue-400'><a href="/users/login">Sign In</a></span></div>
         </form>
       </Fade>
     </div>
