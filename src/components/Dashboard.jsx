@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function Dashboard() {
 
     const [messages, setmessages] = useState([])
-    const [user, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
     const [conversations, setconversations] = useState([])
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
@@ -22,8 +22,8 @@ function Dashboard() {
         }
         fetchconversations()
     }, [])
-    const fetchmessages = async (conversationId) => {
-        const res = await fetch(`http://localhost:8000/api/message/${conversationId}`, {
+    const fetchmessages = async (conversationid) => {
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -31,7 +31,6 @@ function Dashboard() {
         })
         const resdata = await res.json()
         setmessages(resdata)
-        console.log(messages);
     }
     return (
         <div className='flex w-screen '>
@@ -40,17 +39,17 @@ function Dashboard() {
                 <div className='flex justify-center border items-center  p-4 shadow-lg'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
                     <div className='ml-8'>
-                        <h1 className='text-lg font-semibold'>{user.fullname}</h1>
+                        <h1 className='text-lg font-semibold'>{loggedinuser.fullname}</h1>
                         <p>My Account</p>
                     </div>
                 </div>
-                <hr />
+                <hr/>
                 <h1 className='p-2 text-xl font-semibold font-mono mt-4  ml-4 text-blue-500'>Messages</h1>
                 <div className=' h-[75%] overflow-y-scroll'>
                     <div>
                         {
                             conversations.length > 0 ?
-                                conversations.map(({ conversationid, user }) => {
+                                conversations.map(({ conversationid,user }) => {
                                     return (
                                         <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
                                             fetchmessages(conversationid)
@@ -62,7 +61,6 @@ function Dashboard() {
                                             </div>
                                         </div>
                                     )
-
                                 })
                                 : <div className='text-center text-xl m-3 font-semibold'> No conversations</div>
                         }
@@ -83,18 +81,18 @@ function Dashboard() {
                 <div className='h-[75%]  w-full mt-4 '>
                     <div className='h-[85%] p-4 overflow-y-scroll '>
                         {
-                            messages.length > 0 ? messages.map(({ message, user: { id } = {} }) => {
-                                if (id === user?.id) {
+                            messages.length > 0 ? messages.map((message) => {
+                                if (message.user.id === loggedinuser.id) {
                                     return (
                                         <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                                            {message}
+                                            {message.message}
                                         </div>
                                     )
                                 }
                                 else {
                                     return (
                                         <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                                           {message}
+                                           {message.message}
                                         </div>
                                     )
                                 }

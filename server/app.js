@@ -133,14 +133,16 @@ app.post('/api/message', async (req, res) => {
 
 app.get('/api/message/:conversationId', async (req, res) => {
     try {
+
         const conversationId = req.params.conversationId
         if (conversationId === 'new') return res.status(200).json([])
         const messages = await Messages.find({ conversationId })
         const messageUserData = Promise.all(messages.map(async (message1) => {
             const User = await Users.findById(message1.senderId);
-            return { user: {id:User._id,email: User.email, fullName: User.fullname }, message: message1.message }
+            return { user: { id :User.id,email: User.email, fullName: User.fullname }, message: message1.message }
         }))
         res.status(200).json(await messageUserData);
+        
     } catch (error) {
         console.error(error)
     }
