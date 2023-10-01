@@ -1,41 +1,41 @@
 import React, { useEffect, useState } from 'react'
 import User from "../images/usericon.png";
 import phone from "../images/phone.svg";
-import { ToastContainer} from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 function Dashboard() {
 
-    const [messages,setmessages]=useState([])
-    const [user,setuser]=useState(JSON.parse(localStorage.getItem('user:detail')))
-    const [conversations,setconversations]=useState([])
-    useEffect(()=>{
-        const loggedinuser=JSON.parse(localStorage.getItem('user:detail'))
-        const fetchconversations=async()=>{
-            const res=await fetch(`http://localhost:8000/api/conversation/${loggedinuser.id}`,{
-                method:'GET',
-                headers:{
-                'Content-Type':'application/json'
+    const [messages, setmessages] = useState([])
+    const [user, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [conversations, setconversations] = useState([])
+    useEffect(() => {
+        const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
+        const fetchconversations = async () => {
+            const res = await fetch(`http://localhost:8000/api/conversation/${loggedinuser.id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
             })
-            const resdata= await res.json()
+            const resdata = await res.json()
             setconversations(resdata)
         }
         fetchconversations()
-    },[])
-    const fetchmessages=async(conversationId)=>{
-        const res=await fetch(`http://localhost:8000/api/message/${conversationId}`,{
-            method:'GET',
-            headers:{
-            'Content-Type':'application/json'
+    }, [])
+    const fetchmessages = async (conversationId) => {
+        const res = await fetch(`http://localhost:8000/api/message/${conversationId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             },
         })
-        const resdata=await res.json()
+        const resdata = await res.json()
         setmessages(resdata)
-        console.log(resdata);
+        console.log(messages);
     }
     return (
         <div className='flex w-screen '>
-            <ToastContainer/>
+            <ToastContainer />
             <div className='w-[25%] border bg-white border-black h-screen'>
                 <div className='flex justify-center border items-center  p-4 shadow-lg'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
@@ -49,22 +49,22 @@ function Dashboard() {
                 <div className=' h-[75%] overflow-y-scroll'>
                     <div>
                         {
-                        conversations.length>0?
-                            conversations.map(({ conversationid,user }) => {
-                                return (
-                                    <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={()=>{
-                                        fetchmessages(conversationid)
-                                    }}>
-                                        <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
-                                        <div className='ml-3'>
-                                            <h1 className='text-lg font-medium' >{user.fullname}</h1>
-                                            <p>{user.email}</p>
+                            conversations.length > 0 ?
+                                conversations.map(({ conversationid, user }) => {
+                                    return (
+                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
+                                            fetchmessages(conversationid)
+                                        }}>
+                                            <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
+                                            <div className='ml-3'>
+                                                <h1 className='text-lg font-medium' >{user.fullname}</h1>
+                                                <p>{user.email}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
+                                    )
 
-                            })
-                            : <div className='text-center text-xl m-3 font-semibold'> No conversations</div>
+                                })
+                                : <div className='text-center text-xl m-3 font-semibold'> No conversations</div>
                         }
                     </div>
                 </div>
@@ -82,30 +82,26 @@ function Dashboard() {
                 </div>
                 <div className='h-[75%]  w-full mt-4 '>
                     <div className='h-[85%] p-4 overflow-y-scroll '>
-                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laborum, eligendi.
-                        </div>
-                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, odio.
-                        </div>
-                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laborum, eligendi.
-                        </div>
-                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, odio.
-                        </div>
-                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laborum, eligendi.
-                        </div>
-                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, odio.
-                        </div>
-                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laborum, eligendi.
-                        </div>
-                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, odio.
-                        </div>
+                        {
+                            messages.length > 0 ? messages.map(({ message, user: { id } = {} }) => {
+                                if (id === user?.id) {
+                                    return (
+                                        <div className=' max-w-[40%] bg-green-200  rounded-b-2xl shadow-lg  rounded-tr-2xl p-2 mb-2'>
+                                            {message}
+                                        </div>
+                                    )
+                                }
+                                else {
+                                    return (
+                                        <div className=' max-w-[40%] bg-slate-100 rounded-b-2xl shadow-lg  rounded-tl-2xl ml-auto p-2 mb-2'>
+                                           {message}
+                                        </div>
+                                    )
+                                }
+                            }) : <div className=' flex justify-center items-center'>
+                                <div className='text-center text-xl m-3 font-semibold p-3 rounded-2xl bg-slate-100 w-fit'> No conversations</div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className=' w-full flex  items-center'>
