@@ -7,6 +7,7 @@ function Dashboard() {
 
     const [messages, setmessages] = useState([])
     const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [message,setmessage]=useState("")
     const [conversations, setconversations] = useState([])
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
@@ -31,7 +32,24 @@ function Dashboard() {
             },
         })
         const resdata = await res.json()
-        setmessages({messages:resdata, reciever:user})
+        setmessages({messages:resdata, reciever:user},conversationid)
+    }
+    const sendmessage = async(e)=>{
+     e.preventDefault() 
+     const res = await fetch(`http://localhost:8000/api/message`,{
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({
+                conversationId:messages?.conversationid,
+                senderId:messages?.id,
+                message,
+                recieverID:messages.reciever.id
+        })
+    })
+    const resdata=await res.json()
+    setmessage('')
     }
     return (
         <div className='flex w-screen '>
@@ -70,12 +88,13 @@ function Dashboard() {
             </div>
             <div className='w-[50%]  bg-chatbg bg-contain  h-screen flex flex-col justify-center items-center'>
                    {
+                    messages.reciever?.fullname&&
                     <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly px-14 p-2'>
                     <div className='flex justify-center items-center'>
                         <img src={User} alt="img" className='w-[2.5rem] h-[2.5rem] border border-black border-1 rounded-full' />
                         <div className='flex justify-center items-center flex-col ml-6'>
-                            <h1 className='text-lg font-medium ' >Aditi</h1>
-                            <p className='text-sm'>online</p>
+                            <h1 className='text-lg font-medium ' >{ messages.reciever?.fullname}</h1>
+                            <p className='text-sm0'>{messages.reciever?.email}</p>
                         </div>
                     </div>
                     <img src={phone} className='w-[1.5rem] h-1.5rem ml-72 cursor-pointer' />
@@ -98,18 +117,22 @@ function Dashboard() {
                     </div>
                 </div>
                 <div className=' w-full flex  items-center'>
-                    <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message' />
-                    <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-send bg-white rounded-full p-1 cursor-pointer " width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message'value={message} onChange={(e)=>setmessage(e.target.value)} />
+                    <div className={`${!message&&'pointer-events-none'}`}  onClick={()=>sendmessage}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`icon icon-tabler icon-tabler-send  bg-white rounded-full p-1 cursor-pointer`}  width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M10 14l11 -11" />
                         <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
                     </svg>
+                    </div>
+                    <div className={`${!message&&'pointer-events-none'}`}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-circle-plus bg-white rounded-full p-1 cursor-pointer ml-1" width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
                         <path d="M9 12h6" />
                         <path d="M12 9v6" />
                     </svg>
+                    </div>
                 </div>
             </div>
             <div className='w-[25%]  bg-white h-screen'>
