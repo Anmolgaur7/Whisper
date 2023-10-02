@@ -8,7 +8,7 @@ function Dashboard() {
     const [messages, setmessages] = useState([])
     const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
     const [message,setmessage]=useState("")
-    const [conversations, setconversations] = useState([])
+      const [conversations, setconversations] = useState([])
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
         const fetchconversations = async () => {
@@ -22,7 +22,7 @@ function Dashboard() {
             setconversations(resdata)
         }
         fetchconversations()
-        console.log(messages.reciever);
+        
     }, [])
     const fetchmessages = async (conversationid,user) => {
         const res = await fetch(`http://localhost:8000/api/message/${conversationid}`,{
@@ -32,10 +32,11 @@ function Dashboard() {
             },
         })
         const resdata = await res.json()
-        setmessages({messages:resdata, reciever:user},conversationid)
+        setmessages({messages:resdata, reciever:user,conversationid})
+        console.log(resdata);
     }
     const sendmessage = async(e)=>{
-     e.preventDefault() 
+        e.preventDefault()
      const res = await fetch(`http://localhost:8000/api/message`,{
         method: 'post',
         headers: {
@@ -43,12 +44,13 @@ function Dashboard() {
         },
         body:JSON.stringify({
                 conversationId:messages?.conversationid,
-                senderId:messages?.id,
-                message,
-                recieverID:messages.reciever.id
+                senderId:loggedinuser?.id,
+                message:message,
+                recieverId:messages?.reciever?.recieverId
         })
     })
     const resdata=await res.json()
+    console.log(resdata);
     setmessage('')
     }
     return (
@@ -118,7 +120,7 @@ function Dashboard() {
                 </div>
                 <div className=' w-full flex  items-center'>
                     <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message'value={message} onChange={(e)=>setmessage(e.target.value)} />
-                    <div className={`${!message&&'pointer-events-none'}`}  onClick={()=>sendmessage}>
+                    <div className={`${!message&&'pointer-events-none'}`} onClick={(e)=>sendmessage(e)} >
                     <svg xmlns="http://www.w3.org/2000/svg" className={`icon icon-tabler icon-tabler-send  bg-white rounded-full p-1 cursor-pointer`}  width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M10 14l11 -11" />

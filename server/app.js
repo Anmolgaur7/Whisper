@@ -99,8 +99,7 @@ app.get('/api/conversation/:userid', async (req, res) => {
         const conversationUserData = Promise.all(conversations.map(async (conversation) => {
             const recieverId = conversation.members.find((member) => member !== id)
             const user = await Users.findById(recieverId)
-
-            return { user: { fullname: user.fullname, email: user.email }, conversationid: conversation._id }
+            return { user: { id:user.id,fullname: user.fullname, email: user.email },conversationid: conversation._id }
         }))
         res.status(200).json(await conversationUserData)
     } catch (error) {
