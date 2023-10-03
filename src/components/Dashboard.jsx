@@ -49,8 +49,6 @@ function Dashboard() {
                 recieverId:messages?.reciever?.recieverId
         })
     })
-    const resdata=await res.json()
-    console.log(resdata);
     setmessage('')
     }
     return (
