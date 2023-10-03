@@ -41,7 +41,7 @@ function Dashboard() {
     fetchusers()
     },[])
     const fetchmessages = async (conversationid,user) => {
-        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${user.id}`,{
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${user.recieverId}`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
