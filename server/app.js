@@ -72,7 +72,7 @@ app.post('/api/login', async (req, res, next) => {
                             $set: { token }
                         })
                         user.save()
-                        return res.status(200).json({ user: { fullname: user.fullname, email: user.email,id:user._id }, token:token })
+                        return res.status(200).json({ user: { fullname: user.fullname, email: user.email, id: user._id }, token: token })
                     })
                 }
             }
@@ -99,7 +99,7 @@ app.get('/api/conversation/:userid', async (req, res) => {
         const conversationUserData = Promise.all(conversations.map(async (conversation) => {
             const recieverId = conversation.members.find((member) => member !== id)
             const user = await Users.findById(recieverId)
-            return { user: { id:user.id,fullname: user.fullname, email: user.email },conversationid: conversation._id }
+            return { user: { id: user.id, fullName: user.fullname, email: user.email }, conversationid: conversation.id }
         }))
         res.status(200).json(await conversationUserData)
     } catch (error) {
@@ -109,10 +109,11 @@ app.get('/api/conversation/:userid', async (req, res) => {
 app.post('/api/message', async (req, res) => {
     try {
         const { conversationId, senderId, message, recieverId = '' } = req.body
+        console.log(conversationId, senderId, message, recieverId);
         if (!senderId || !message) {
             return res.status(400).send("Please fill required feilds")
         }
-        if (!conversationId && recieverId) {
+        if (conversationId === 'new' && recieverId) {
             const newconversation = new Conversations({ members: [senderId, recieverId] })
             await newconversation.save()
             const newmessage = new Messages({ conversationId: newconversation._id, senderId, message })
@@ -134,7 +135,21 @@ app.get('/api/message/:conversationId', async (req, res) => {
     try {
 
         const conversationId = req.params.conversationId
-        if (conversationId === 'new') return res.status(200).json([])
+        if (conversationId === 'new') {
+            const checkconvo=await Conversations.find({members:{$all:[req.query.senderId,req.query.recieverId]}})
+            if(checkconvo)
+            {
+                const messages = await Messages.find({ conversationId })
+                const messageUserData = Promise.all(messages.map(async (message1) => {
+                    const User = await Users.findById(message1.senderId);
+                    return { user: { id :User.id,email: User.email, fullName: User.fullname }, message: message1.message }
+                }))
+                res.status(200).json(await messageUserData);
+            }
+            else{
+                return res.status(200).json([])
+            }
+        }
         const messages = await Messages.find({ conversationId })
         const messageUserData = Promise.all(messages.map(async (message1) => {
             const User = await Users.findById(message1.senderId);
@@ -145,14 +160,14 @@ app.get('/api/message/:conversationId', async (req, res) => {
     } catch (error) {
         console.error(error)
     }
-
 })
-app.get('/api/users', async (req, res) => {
-    try {
 
-        const users = await Users.find()
+app.get('/api/users/:userid', async (req, res) => {
+    try {
+        const id = req.params.userid
+        const users = await Users.find({ _id: { $ne: id } })
         const userdata = Promise.all(users.map((user) => {
-            return { user: { email: user.email, fullName: user.fullname }, userID: user._id }
+            return { user: { email: user.email, fullName: user.fullname, recieverId: user.id } }
         }))
         res.status(200).json(await userdata)
     } catch (error) {
@@ -161,5 +176,5 @@ app.get('/api/users', async (req, res) => {
 
 })
 app.listen(PORT, () => {
-    console.log('Listining');
+    console.log('Listining on port', PORT);
 })

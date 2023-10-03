@@ -8,7 +8,10 @@ function Dashboard() {
     const [messages, setmessages] = useState([])
     const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
     const [message,setmessage]=useState("")
+    const [users,setusers]=useState([])
       const [conversations, setconversations] = useState([])
+      console.log("users=>",users);
+      console.log("conversations:",conversations)
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
         const fetchconversations = async () => {
@@ -24,8 +27,21 @@ function Dashboard() {
         fetchconversations()
         
     }, [])
+    useEffect(()=>{
+    const fetchusers= async()=>{
+        const res = await fetch(`http://localhost:8000/api/users/${loggedinuser.id}`,{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const resdata = await res.json()
+        setusers(resdata)
+    }    
+    fetchusers()
+    },[])
     const fetchmessages = async (conversationid,user) => {
-        const res = await fetch(`http://localhost:8000/api/message/${conversationid}`,{
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${user.id}`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,7 +70,7 @@ function Dashboard() {
     return (
         <div className='flex w-screen '>
             <ToastContainer />
-            <div className='w-[25%] border bg-white border-black h-screen'>
+            <div className='w-[25%] border bg-white h-screen'>
                 <div className='flex justify-center border items-center  p-4 shadow-lg'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
                     <div className='ml-8'>
@@ -75,7 +91,7 @@ function Dashboard() {
                                         }}>
                                             <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
                                             <div className='ml-3'>
-                                                <h1 className='text-lg font-medium' >{user.fullname}</h1>
+                                                <h1 className='text-lg font-medium' >{user.fullName}</h1>
                                                 <p>{user.email}</p>
                                             </div>
                                         </div>
@@ -88,12 +104,12 @@ function Dashboard() {
             </div>
             <div className='w-[50%]  bg-chatbg bg-contain  h-screen flex flex-col justify-center items-center'>
                    {
-                    messages.reciever?.fullname&&
+                    messages.reciever?.fullName&&
                     <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly px-14 p-2'>
                     <div className='flex justify-center items-center'>
                         <img src={User} alt="img" className='w-[2.5rem] h-[2.5rem] border border-black border-1 rounded-full' />
                         <div className='flex justify-center items-center flex-col ml-6'>
-                            <h1 className='text-lg font-medium ' >{ messages.reciever?.fullname}</h1>
+                            <h1 className='text-lg font-medium ' >{ messages.reciever?.fullName}</h1>
                             <p className='text-sm0'>{messages.reciever?.email}</p>
                         </div>
                     </div>
@@ -136,6 +152,24 @@ function Dashboard() {
                 </div>
             </div>
             <div className='w-[25%]  bg-white h-screen'>
+            <h1 className='p-2 text-xl font-semibold font-mono mt-6  ml-4 text-blue-500'>People</h1>
+            {
+                            users.length > 0 ?
+                                users.map(({ recieverId,user }) => {
+                                    return (
+                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
+                                            fetchmessages('new',user)
+                                        }}>
+                                            <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
+                                            <div className='ml-3'>
+                                                <h1 className='text-lg font-medium' >{user.fullName}</h1>
+                                                <p>{user.email}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                                : <div className='text-center text-xl m-3 font-semibold'> No People</div>
+                        }
 
             </div>
         </div>
