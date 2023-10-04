@@ -108,8 +108,7 @@ app.get('/api/conversation/:userid', async (req, res) => {
 })
 app.post('/api/message', async (req, res) => {
     try {
-        const { conversationId, senderId, message, recieverId = '' } = req.body
-        console.log(conversationId, senderId, message, recieverId);
+        const { conversationId, senderId, message, recieverId = '' } = req.body;
         if (!senderId || !message) {
             return res.status(400).send("Please fill required feilds")
         }

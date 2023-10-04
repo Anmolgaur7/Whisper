@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import User from "../images/usericon.png";
 import phone from "../images/phone.svg";
+import Logout from "../images/logout.svg";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 function Dashboard() {
 
     const [messages, setmessages] = useState([])
     const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
     const [message,setmessage]=useState("")
     const [users,setusers]=useState([])
-      const [conversations, setconversations] = useState([])
-      console.log("users=>",users);
-      console.log("conversations:",conversations)
+    const [conversations, setconversations] = useState([])
+     const navigate=useNavigate();
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
         const fetchconversations = async () => {
@@ -51,6 +52,10 @@ function Dashboard() {
         setmessages({messages:resdata, reciever:user,conversationid})
         console.log(resdata);
     }
+    const logout=()=>{
+     localStorage.removeItem('user:token','user:detail');   
+     navigate('/users/login')
+    }
     const sendmessage = async(e)=>{
         e.preventDefault()
      const res = await fetch(`http://localhost:8000/api/message`,{
@@ -77,6 +82,7 @@ function Dashboard() {
                         <h1 className='text-lg font-semibold'>{loggedinuser.fullname}</h1>
                         <p>My Account</p>
                     </div>
+                    <img src={Logout} alt="user" onClick={logout} className=' w-[2.45rem] h-[2.45rem] ml-14 bg-slate-100 hover:shadow-lg' />
                 </div>
                 <hr/>
                 <h1 className='p-2 text-xl font-semibold font-mono mt-4  ml-4 text-blue-500'>Messages</h1>
@@ -86,7 +92,7 @@ function Dashboard() {
                             conversations.length > 0 ?
                                 conversations.map(({ conversationid,user }) => {
                                     return (
-                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
+                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl hover:shadow-lg ' onClick={() => {
                                             fetchmessages( conversationid,user)
                                         }}>
                                             <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
@@ -133,7 +139,7 @@ function Dashboard() {
                     </div>
                 </div>
                 <div className=' w-full flex  items-center'>
-                    <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message'value={message} onChange={(e)=>setmessage(e.target.value)} />
+                    <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none hover:shadow-lg' placeholder='Type a message'value={message} onChange={(e)=>setmessage(e.target.value)} />
                     <div className={`${!message&&'pointer-events-none'}`} onClick={(e)=>sendmessage(e)} >
                     <svg xmlns="http://www.w3.org/2000/svg" className={`icon icon-tabler icon-tabler-send  bg-white rounded-full p-1 cursor-pointer`}  width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -157,7 +163,7 @@ function Dashboard() {
                             users.length > 0 ?
                                 users.map(({ recieverId,user }) => {
                                     return (
-                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
+                                        <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl hover:shadow-lg ' onClick={() => {
                                             fetchmessages('new',user)
                                         }}>
                                             <img src={User} alt="img" className='w-[2rem] h-[2rem] border border-black border-1 rounded-full' />
