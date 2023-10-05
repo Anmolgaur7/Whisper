@@ -5,11 +5,6 @@ const Conversations = require('./models/Conversation');
 const Messages = require('./models/Messages');
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
-const io= require('socket.io')(8080,{
-    cors:{
-     origin:'http://localhost:3000',   
-    }
-});
 
 require('./db/connection')
 const app = express()
@@ -18,38 +13,6 @@ app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 8000
-
-let users=[];
-io.on('connection',socket=>{
-    console.log("user connected",socket.id);
-    socket.on('adduser',id=>{
-        const userexist=users.find(user=>user.userid===id)
-        if (!userexist) {
-            const user={userid:id,socketid:socket.id}
-            users.push(user)
-            io.emit('getusers',users)   
-        }
-    })
-    socket.on('disconnect',()=>{
-        users=users.filter(user=>user.socketid!==socket.id)
-        io.emit('getusers',users)   
-    })
-    socket.on('sendmessage',async ({senderId,recieverId,message,conversationId})=>{
-
-        const reciever= users.find(user=>user.userid===recieverId) 
-        const sender= users.find(user=>user.userid===senderId) 
-        const user=await Users.findById(senderId)
-        if (reciever) {
-        io.to(reciever.socketid).to(sender.socketid).emit('getmessage',{
-            senderId,
-            recieverId,
-            message,
-            conversationId,
-            user:{id:user._id,fullname:user.fullname,email:user.email}
-        })
-    }
-    })
-})
 
 app.get('/', (req, res) => {
     res.send("welcome")
@@ -145,7 +108,8 @@ app.get('/api/conversation/:userid', async (req, res) => {
 })
 app.post('/api/message', async (req, res) => {
     try {
-        const { conversationId, senderId, message, recieverId = '' } = req.body;
+        const { conversationId, senderId, message, recieverId = '' } = req.body
+        console.log(conversationId, senderId, message, recieverId);
         if (!senderId || !message) {
             return res.status(400).send("Please fill required feilds")
         }
