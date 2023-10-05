@@ -4,6 +4,11 @@ const Users = require('./models/Users');
 const Conversations = require('./models/Conversation');
 const Messages = require('./models/Messages');
 const jwt = require('jsonwebtoken')
+const io = require('socket.io')(8080, {
+    cors: {
+        origin: 'http://localhost:3000',
+    }
+});
 const cors = require('cors')
 
 require('./db/connection')
@@ -13,6 +18,48 @@ app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 8000
+let users = [];
+io.on('connection', (socket) => {
+    console.log('connection',socket.id);
+    socket.on('adduser', (userid) => {
+        const userexist = users.find(user => user.userid === userid);
+        if (!userexist) {
+            const user = { userid, socketid: socket.id }
+            users.push(user)
+            io.emit('getusers',users)  
+        }
+    })
+    socket.on('disconnect', () => {
+        // Remove disconnected user from the array
+        users = users.filter(user => user.socketid !== socket.id);
+        io.emit('getusers', users);
+    });
+    socket.on('sendmessage', async ({ senderId, receiverId, message, conversationId }) => {
+        console.log({ senderId, receiverId, message, conversationId });
+        const receiver = users.find(user => user.userid === receiverId);
+        const sender = users.find(user => user.userid === senderId);
+        const user = await Users.findById(senderId);
+        console.log('sender :>> ', sender, receiver);
+        if (receiver) {
+            io.to(receiver?.socketid).to(sender?.socketid).emit('getmessage', {
+                senderId,
+                message,
+                conversationId,
+                receiverId,
+                user: { id: user.id, fullname: user.fullname, email: user.email }
+            });
+            }else {
+                io.to(sender?.socketid).emit('getmessage', {
+                    senderId,
+                    message,
+                    conversationId,
+                    receiverId,
+                    user: { id: user.id, fullname: user.fullname, email: user.email }
+                });
+            }
+        });
+    
+})
 
 app.get('/', (req, res) => {
     res.send("welcome")
@@ -133,31 +180,30 @@ app.post('/api/message', async (req, res) => {
 
 app.get('/api/message/:conversationId', async (req, res) => {
     try {
-        const checkmessages= async(conversationId)=>{
+        const checkmessages = async (conversationId) => {
             const messages = await Messages.find({ conversationId })
             const messageUserData = Promise.all(messages.map(async (message1) => {
                 const User = await Users.findById(message1.senderId);
-                return { user: { id :User.id,email: User.email, fullName: User.fullname }, message: message1.message }
+                return { user: { id: User.id, email: User.email, fullName: User.fullname }, message: message1.message }
             }))
             res.status(200).json(await messageUserData);
         }
 
         const conversationId = req.params.conversationId
         if (conversationId === 'new') {
-            const checkconvo=await Conversations.find({members:{$all:[req.query.senderId,req.query.recieverId]}})
-            if(checkconvo.length>0)
-            {
-            console.log(checkconvo.length[1]);
-            checkmessages(checkconvo[0].id)
+            const checkconvo = await Conversations.find({ members: { $all: [req.query.senderId, req.query.recieverId] } })
+            if (checkconvo.length > 0) {
+                console.log(checkconvo.length[1]);
+                checkmessages(checkconvo[0].id)
             }
-            else{
+            else {
                 return res.status(200).json([])
             }
         }
-        else{
+        else {
             checkmessages(conversationId)
         }
-        
+
     } catch (error) {
         console.error(error)
     }
