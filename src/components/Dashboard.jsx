@@ -57,26 +57,26 @@ function Dashboard() {
         }
         fetchusers()
     }, [])
-    const fetchmessages = async (conversationid, user) => {
-        console.log(user);
-        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${user.recieverId}`, {
+    const fetchmessages = async (conversationid, reciever) => {
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
         })
         const resdata = await res.json()
-        setmessages({ messages: resdata, reciever: user, conversationid })
+        console.log(resdata);
+        setmessages({ messages: resdata, reciever, conversationid })
     }
     const sendmessage = async (e) => {
         
         e.preventDefault()
-        console.log( messages?.reciever?.recieverId);
+        console.log( messages.reciever.id);
         socket?.emit('sendmessage',{
-            conversationId: messages?.conversationid,
-            senderId: loggedinuser?.id,
+            conversationid: messages?.conversationid,
+            senderid: loggedinuser?.id,
             message: message,
-            recieverId: messages?.reciever?.id
+            recieverid: messages?.reciever?.id
         })
         const res = await fetch(`http://localhost:8000/api/message`, {
             method: 'post',
@@ -84,10 +84,10 @@ function Dashboard() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                conversationId: messages?.conversationid,
-                senderId: loggedinuser?.id,
+                conversationid: messages?.conversationid,
+                senderid: loggedinuser?.id,
                 message: message,
-                recieverId: messages?.reciever?.recieverId
+                recieverid: messages?.reciever?.id
             })
         })
         setmessage('')
@@ -180,7 +180,7 @@ function Dashboard() {
                 <h1 className='p-2 text-xl font-semibold font-mono mt-6  ml-4 text-blue-500'>People</h1>
                 {
                     users.length > 0 ?
-                        users.map(({ recieverId, user }) => {
+                        users.map(({ recieverid, user }) => {
                             return (
                                 <div className='flex ml-6 m-4 bg-blue-200 cursor-pointer items-center p-2 rounded-xl shadow-lg ' onClick={() => {
                                     fetchmessages('new', user)
