@@ -58,7 +58,7 @@ function Dashboard() {
         fetchusers()
     }, [])
     const fetchmessages = async (conversationid, reciever) => {
-        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.id}`, {
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.recieverid}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -76,7 +76,7 @@ function Dashboard() {
             conversationid: messages?.conversationid,
             senderid: loggedinuser?.id,
             message: message,
-            recieverid: messages?.reciever?.id
+            recieverid: messages?.reciever?.recieverid
         })
         const res = await fetch(`http://localhost:8000/api/message`, {
             method: 'post',
@@ -87,7 +87,7 @@ function Dashboard() {
                 conversationid: messages?.conversationid,
                 senderid: loggedinuser?.id,
                 message: message,
-                recieverid: messages?.reciever?.id
+                recieverid: messages?.reciever?.recieverid
             })
         })
         setmessage('')

@@ -47,7 +47,6 @@ io.on('connection', (socket) => {
                 message,
                 conversationid,
                 receiverid,
-                user: { id: user.id, fullname: user.fullname, email: user.email }
             });
             }else {
                 io.to(sender?.socketid).emit('getmessage', {
@@ -55,7 +54,6 @@ io.on('connection', (socket) => {
                     message,
                     conversationid,
                     receiverid,
-                    user: { id: user.id, fullname: user.fullname, email: user.email }
                 });
             }
         });
