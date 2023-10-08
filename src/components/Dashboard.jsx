@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import User from "../images/usericon.png";
 import phone from "../images/phone.svg";
 import { ToastContainer } from "react-toastify";
@@ -12,23 +12,24 @@ function Dashboard() {
     const [socket, setsocket] = useState(null)
     const [users, setusers] = useState([])
     const [conversations, setconversations] = useState([])
-     
+    const messageref = useRef(null)
+
 
     useEffect(() => {
-		setsocket(io('http://localhost:8080'))
-	}, [])
+        setsocket(io('http://localhost:8080'))
+    }, [])
     useEffect(() => {
-		socket?.emit('adduser', loggedinuser?.id);
-		socket?.on('getusers', users => {
-			console.log('activeUsers :>> ', users);
-		})
-		socket?.on('getmessage', data => {
-			setmessages(prev => ({
-				...prev,
-				messages: [...prev.messages, { user: data.user, message: data.message }]
-			}))
-		})
-	}, [socket])
+        socket?.emit('adduser', loggedinuser?.id);
+        socket?.on('getusers', users => {
+            console.log('activeUsers :>> ', users);
+        })
+        socket?.on('getmessage', data => {
+            setmessages(prev => ({
+                ...prev,
+                messages: [...prev.messages, { user: data.user, message: data.message }]
+            }))
+        })
+    }, [socket])
     useEffect(() => {
         const loggedinuser = JSON.parse(localStorage.getItem('user:detail'))
         const fetchconversations = async () => {
@@ -58,25 +59,23 @@ function Dashboard() {
         fetchusers()
     }, [])
     const fetchmessages = async (conversationid, reciever) => {
-        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.recieverid}`, {
+        console.log(conversationid, loggedinuser.id, reciever.recieverId);
+        const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.recieverId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
         })
         const resdata = await res.json()
-        console.log(resdata);
         setmessages({ messages: resdata, reciever, conversationid })
     }
     const sendmessage = async (e) => {
-        
         e.preventDefault()
-        console.log( messages.reciever.id);
-        socket?.emit('sendmessage',{
+        socket?.emit('sendmessage', {
             conversationid: messages?.conversationid,
             senderid: loggedinuser?.id,
             message: message,
-            recieverid: messages?.reciever?.recieverid
+            recieverid: messages?.reciever?.recieverId
         })
         const res = await fetch(`http://localhost:8000/api/message`, {
             method: 'post',
@@ -87,11 +86,14 @@ function Dashboard() {
                 conversationid: messages?.conversationid,
                 senderid: loggedinuser?.id,
                 message: message,
-                recieverid: messages?.reciever?.recieverid
+                recieverid: messages?.reciever?.recieverId
             })
         })
         setmessage('')
     }
+    useEffect(()=>{
+     messageref?.current?.scrollIntoView({behavior:'smooth'})
+    },[messages?.messages])
     return (
         <div className='flex w-screen '>
             <ToastContainer />
@@ -147,9 +149,14 @@ function Dashboard() {
                         {
                             messages?.messages?.length > 0 ? messages.messages.map(({ message, user: { id } = {} }) => {
                                 return (
-                                    <div className={` max-w-[40%] rounded-b-2xl h-[2rem] shadow-lg  pl-2 p-1 mb-2 ${id === loggedinuser.id ? 'bg-green-200 rounded-tl-2xl  ml-auto' : ' bg-slate-100   rounded-tr-2xl'} `}>
-                                        {message}
-                                    </div>
+                                    <>
+                                        <div className={` max-w-[40%] rounded-b-2xl h-[2rem] shadow-lg  pl-2 p-1 mb-2 ${id === loggedinuser.id ? 'bg-green-200 rounded-tl-2xl  ml-auto' : ' bg-slate-100   rounded-tr-2xl'} `}>
+                                            {message}
+                                        </div>
+                                        <div ref={messageref}>
+
+                                        </div>
+                                    </>
                                 )
                             }) : <div className=' flex justify-center items-center'>
                                 <div className='text-center text-xl m-3 font-semibold p-3 rounded-2xl bg-slate-100 w-fit'> No conversations</div>

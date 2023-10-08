@@ -35,18 +35,18 @@ io.on('connection', (socket) => {
         io.emit('getusers', users);
     });
     socket.on('sendmessage', async ({ senderid, receiverid, message, conversationid }) => {
-        console.log({ senderid, receiverid, message, conversationid });
+        
         const receiver = users.find(user => user.userid === receiverid);
         const sender = users.find(user => user.userid === senderid);
 
         const user = await Users.findById(senderid);
-        console.log('sender :>> ', sender, receiver);
         if (receiver) {
             io.to(receiver?.socketid).to(sender?.socketid).emit('getmessage', {
                 senderid,
                 message,
                 conversationid,
                 receiverid,
+                user: { id: user.id, fullname: user.fullname, email: user.email }
             });
             }else {
                 io.to(sender?.socketid).emit('getmessage', {
@@ -54,6 +54,7 @@ io.on('connection', (socket) => {
                     message,
                     conversationid,
                     receiverid,
+                    user: { id: user.id, fullname: user.fullname, email: user.email }
                 });
             }
         });
@@ -145,7 +146,7 @@ app.get('/api/conversation/:userid', async (req, res) => {
         const conversationUserData = Promise.all(conversations.map(async (conversation) => {
             const recieverid = conversation.members.find((member) => member !== id)
             const user = await Users.findById(recieverid)
-            return { user: { id: user._id, fullName: user.fullname, email: user.email }, conversationid: conversation.id }
+            return { user: { recieverId: user._id, fullName: user.fullname, email: user.email }, conversationid: conversation.id }
         }))
         res.status(200).json(await conversationUserData)
     } catch (error) {
@@ -190,10 +191,12 @@ app.get('/api/message/:conversationid', async (req, res) => {
 
         const conversationid = req.params.conversationid
         if (conversationid === 'new') {
-            const checkconvo = await Conversations.find({ members: { $all: [req.query.senderid, req.query.recieverid] } })
+            console.log(req.query.recieverId ,req.query.senderId);
+            
+            const checkconvo = await Conversations.find({ members: { $all: [req.query.senderId, req.query.recieverId] } })
             if (checkconvo.length > 0) {
                 console.log(checkconvo.length[1]);
-                checkmessages(checkconvo[0].id)
+                checkmessages(checkconvo[0]._id)
             }
             else {
                 return res.status(200).json([])
@@ -213,7 +216,8 @@ app.get('/api/users/:userid', async (req, res) => {
         const id = req.params.userid
         const users = await Users.find({ _id: { $ne: id } })
         const userdata = Promise.all(users.map((user) => {
-            return { user: { email: user.email, fullName: user.fullname, recieverid: user._id } }
+        const rid=user._id.toString();
+            return { user: { email: user.email, fullName: user.fullname, recieverId: rid } }
         }))
         res.status(200).json(await userdata)
     } catch (error) {
