@@ -43,10 +43,10 @@ function Login() {
     }
     }
     return (
-            <div className='w-screen h-screen flex justify-center items-center'>
+            <div className=' w-screen h-screen flex justify-center items-center'>
             <ToastContainer />
                 <Fade>
-                    <form onSubmit={(e) => handlesubmit(e)} className=' bg-white flex-col flex justify-center items-center p-20 shadow-lg rounded-lg'>
+                    <form onSubmit={(e) => handlesubmit(e)} className=' m-5  md: bg-white flex-col flex justify-center items-center p-20 shadow-lg rounded-lg'>
                         <h1 className='text-4xl font-mono font-bold'>Welcome Back</h1>
                         <h1 className='text-lg font-mono font-normal mb-16'>Sign in to explore</h1>
                         <label className='text-lg font-mono font-normal'>Email</label>

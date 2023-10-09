@@ -98,7 +98,7 @@ function Dashboard() {
      messageref?.current?.scrollIntoView({behavior:'smooth'})
     },[messages?.messages])
     return (
-        <div className='flex w-screen '>
+        <div className='flex w-screen'>
             <ToastContainer />
             <div className='w-[25%] border bg-white h-screen'>
                 <div className='flex justify-center border items-center  p-4 shadow-lg flex-wrap'>
