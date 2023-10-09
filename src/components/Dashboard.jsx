@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import User from "../images/usericon.png";
+import Logout from "../images/logout.svg";
 import phone from "../images/phone.svg";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { io } from "socket.io-client";
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 function Dashboard() {
-
+    const navigate=useNavigate();
     const [messages, setmessages] = useState([])
     const [loggedinuser, setuser] = useState(JSON.parse(localStorage.getItem('user:detail')))
     const [message, setmessage] = useState("")
@@ -43,7 +45,6 @@ function Dashboard() {
             setconversations(resdata)
         }
         fetchconversations()
-
     }, [])
     useEffect(() => {
         const fetchusers = async () => {
@@ -59,7 +60,7 @@ function Dashboard() {
         fetchusers()
     }, [])
     const fetchmessages = async (conversationid, reciever) => {
-        console.log(conversationid, loggedinuser.id, reciever.recieverId);
+        console.log(reciever);
         const res = await fetch(`http://localhost:8000/api/message/${conversationid}?senderId=${loggedinuser.id}&&recieverId=${reciever.recieverId}`, {
             method: 'GET',
             headers: {
@@ -70,7 +71,7 @@ function Dashboard() {
         setmessages({ messages: resdata, reciever, conversationid })
     }
     const sendmessage = async (e) => {
-        e.preventDefault()
+        setmessage('')
         socket?.emit('sendmessage', {
             conversationid: messages?.conversationid,
             senderid: loggedinuser?.id,
@@ -89,7 +90,9 @@ function Dashboard() {
                 recieverid: messages?.reciever?.recieverId
             })
         })
-        setmessage('')
+    }
+    const logout=()=>{
+    localStorage.removeItem('user:token','user:detail')   
     }
     useEffect(()=>{
      messageref?.current?.scrollIntoView({behavior:'smooth'})
@@ -98,11 +101,14 @@ function Dashboard() {
         <div className='flex w-screen '>
             <ToastContainer />
             <div className='w-[25%] border bg-white h-screen'>
-                <div className='flex justify-center border items-center  p-4 shadow-lg'>
+                <div className='flex justify-center border items-center  p-4 shadow-lg flex-wrap'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
                     <div className='ml-8'>
                         <h1 className='text-lg font-semibold'>{loggedinuser.fullname}</h1>
                         <p>My Account</p>
+                    </div>
+                    <div>
+                        <img src={Logout} alt="" className=' ml-10 w-[2.5rem] h-[2.5rem] cursor-pointer hover:shadow-xl ' onClick={logout()} />
                     </div>
                 </div>
                 <hr />

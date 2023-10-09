@@ -22,11 +22,12 @@ let users = [];
 io.on('connection', (socket) => {
     console.log('connection',socket.id);
     socket.on('adduser', (userid) => {
+        console.log(userid);
         const userexist = users.find(user => user.userid === userid);
         if (!userexist) {
             const user = { userid, socketid: socket.id }
             users.push(user)
-            io.emit('getusers',users)  
+            io.emit('getusers',users) 
         }
     })
     socket.on('disconnect', () => {
@@ -34,11 +35,13 @@ io.on('connection', (socket) => {
         users = users.filter(user => user.socketid !== socket.id);
         io.emit('getusers', users);
     });
-    socket.on('sendmessage', async ({ senderid, receiverid, message, conversationid }) => {
-        
-        const receiver = users.find(user => user.userid === receiverid);
+    socket.on('sendmessage', async ({conversationid,senderid,message,receiverid }) => {    
+        const conversation=await Conversations.findById(conversationid)
+        const recieverid2 = conversation.members.find((member) => member !== senderid)
+        const ruser=await Users.findById(recieverid2)
+        const rid=ruser._id.toString()
+        const receiver = users.find(user => user.userid === rid);
         const sender = users.find(user => user.userid === senderid);
-
         const user = await Users.findById(senderid);
         if (receiver) {
             io.to(receiver?.socketid).to(sender?.socketid).emit('getmessage', {
@@ -155,8 +158,7 @@ app.get('/api/conversation/:userid', async (req, res) => {
 })
 app.post('/api/message', async (req, res) => {
     try {
-        const { conversationid, senderid, message, recieverid = '' } = req.body
-        console.log(conversationid, senderid, message, recieverid);
+        const { conversationid, senderid, message, recieverid = '' } = req.body        
         if (!senderid || !message) {
             return res.status(400).send("Please fill required feilds")
         }
