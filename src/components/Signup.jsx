@@ -21,7 +21,7 @@ function Signup() {
   return (
     <div className='w-screen h-screen flex justify-center items-center'>
       <Fade>
-        <form onSubmit={(e)=> handlesubmit(e)} className='flex-col bg-white flex justify-center items-center p-20 shadow-lg rounded-lg'>
+        <form onSubmit={(e)=> handlesubmit(e)} className='flex-col bg-white flex justify-center items-center p-12 shadow-lg rounded-lg'>
           <h1 className='text-4xl font-mono font-bold'>Welcome</h1>
           <h1 className='text-lg font-mono font-normal mb-16'>Sign up to get Started</h1>
           <label className='text-lg font-mono font-normal'>First Name</label>

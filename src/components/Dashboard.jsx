@@ -15,6 +15,7 @@ function Dashboard() {
     const [users, setusers] = useState([])
     const [conversations, setconversations] = useState([])
     const messageref = useRef(null)
+    const chatref = useRef(null)
 
 
     useEffect(() => {
@@ -69,6 +70,7 @@ function Dashboard() {
         })
         const resdata = await res.json()
         setmessages({ messages: resdata, reciever, conversationid })
+
     }
     const sendmessage = async (e) => {
         setmessage('')
@@ -91,25 +93,25 @@ function Dashboard() {
             })
         })
     }
-    const logout=()=>{
-    localStorage.removeItem('user:token','user:detail')   
-    }
+    const handlelogout=()=>{
+        localStorage.removeItem('user:token','user:details')
+        navigate("/users/login") 
+      }
     useEffect(()=>{
      messageref?.current?.scrollIntoView({behavior:'smooth'})
-    },[messages?.messages])
+     chatref?.current?.scrollIntoView({behavior:'smooth'})
+    },[messages?.messages,conversations])
     return (
-        <div className='flex w-screen'>
+        <div className='flex flex-wrap'>
             <ToastContainer />
-            <div className='w-[25%] border bg-white h-screen'>
+            <div className=' w-screen lg:w-[25%] border bg-white h-screen'>
                 <div className='flex justify-center border items-center  p-4 shadow-lg flex-wrap'>
                     <img src={User} alt="user" className='border border-1 p-[2px] border-black rounded-full bg-slate-100' />
                     <div className='ml-8'>
                         <h1 className='text-lg font-semibold'>{loggedinuser.fullname}</h1>
                         <p>My Account</p>
                     </div>
-                    <div>
-                        <img src={Logout} alt="" className=' ml-10 w-[2.5rem] h-[2.5rem] cursor-pointer hover:shadow-xl ' onClick={logout()} />
-                    </div>
+                    <img src={Logout} className='w-[2.5rem] h-[2.5rem] cursor-pointer ml-10 hover:shadow-lg' onClick={handlelogout} />
                 </div>
                 <hr />
                 <h1 className='p-2 text-xl font-semibold font-mono mt-4  ml-4 text-blue-500'>Messages</h1>
@@ -135,18 +137,17 @@ function Dashboard() {
                     </div>
                 </div>
             </div>
-            <div className='w-[50%]  bg-chatbg bg-contain  h-screen flex flex-col justify-center items-center'>
+            <div className=' w-screen lg:w-[50%] bg-chatbg bg-contain  h-screen flex flex-col justify-center items-center' ref={chatref}>
                 {
                     messages.reciever?.fullName &&
-                    <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly px-14 p-2'>
-                        <div className='flex justify-center items-center'>
+                    <div className='w-[75%] bg-slate-100 h-[4rem]  rounded-full flex items-center justify-evenly m-auto p-2'>
+                        <div className='flex justify-center items-center '>
                             <img src={User} alt="img" className='w-[2.5rem] h-[2.5rem] border border-black border-1 rounded-full' />
                             <div className='flex justify-center items-center flex-col ml-6'>
                                 <h1 className='text-lg font-medium ' >{messages.reciever?.fullName}</h1>
                                 <p className='text-sm0'>{messages.reciever?.email}</p>
                             </div>
                         </div>
-                        <img src={phone} className='w-[1.5rem] h-1.5rem ml-72 cursor-pointer' />
                     </div>
                 }
 
@@ -170,7 +171,7 @@ function Dashboard() {
                         }
                     </div>
                 </div>
-                <div className=' w-full flex  items-center'>
+                <div className=' w-full flex m-3 items-center'>
                     <input type="text" className=' w-[75%] h-[2.65rem] rounded-full p-3 ml-6 mr-1 focus:ring-2 focus:border-0 outline-none shadow-lg' placeholder='Type a message' value={message} onChange={(e) => setmessage(e.target.value)} />
                     <div className={`${!message && 'pointer-events-none'}`} onClick={(e) => sendmessage(e)} >
                         <svg xmlns="http://www.w3.org/2000/svg" className={`icon icon-tabler icon-tabler-send  bg-white rounded-full p-1 cursor-pointer`} width="30" height="30" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#2c3e50" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -189,7 +190,7 @@ function Dashboard() {
                     </div>
                 </div>
             </div>
-            <div className='w-[25%]  bg-white h-screen'>
+            <div className='w-screen lg:w-[25%]  bg-white h-screen'>
                 <h1 className='p-2 text-xl font-semibold font-mono mt-6  ml-4 text-blue-500'>People</h1>
                 {
                     users.length > 0 ?
