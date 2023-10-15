@@ -94,7 +94,7 @@ function Dashboard() {
         })
     }
     const handlelogout=()=>{
-        localStorage.removeItem('user:token','user:details')
+        localStorage.removeItem('user:token')
         navigate("/users/login") 
       }
     useEffect(()=>{
